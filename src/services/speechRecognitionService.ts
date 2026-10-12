@@ -21,7 +21,7 @@ export interface SpeechRecognitionCallbacks {
   onError: (err: VoiceSystemError) => void;
 }
 
-const SILENCE_COMMIT_MS = 1150;
+const SILENCE_COMMIT_MS = 550;
 
 export class SpeechRecognitionService {
   private recognition: WebSpeechRecognition | null = null;

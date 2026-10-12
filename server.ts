@@ -293,6 +293,7 @@ async function generateReplyWithFallback(
         contents: contentsCopy,
         config: {
           systemInstruction,
+          maxOutputTokens: 120,
           ...(model === 'gemini-3.1-flash-lite'
             ? { thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL } }
             : model.startsWith('gemini-3')
@@ -410,8 +411,21 @@ async function startServer() {
         systemInstructionWithTime
       );
 
-      // Generate real 24kHz mono 16-bit WAV audio from gemini-3.8-flash-lite-tts
-      const { audioBase64, ttsError } = await synthesizeJarvisAudio(ai, replyText);
+      // Synthesize neural WAV audio with a strict 3.5s timeout; if it takes longer,
+      // reply immediately so the client can speak via browser TTS without delay
+      let audioBase64: string | undefined;
+      let ttsError: string | undefined;
+      try {
+        const ttsPromise = synthesizeJarvisAudio(ai, replyText);
+        const timeoutPromise = new Promise<{ audioBase64?: string; ttsError?: string }>((resolve) =>
+          setTimeout(() => resolve({ ttsError: 'TTS timeout; using instant local voice' }), 3500)
+        );
+        const ttsResult = await Promise.race([ttsPromise, timeoutPromise]);
+        audioBase64 = ttsResult.audioBase64;
+        ttsError = ttsResult.ttsError;
+      } catch (e) {
+        ttsError = e instanceof Error ? e.message : 'TTS synthesis skipped';
+      }
 
       res.json({
         replyText,
@@ -516,6 +530,7 @@ async function startServer() {
           contents: formattedContents,
           config: {
             systemInstruction: systemInstructionWithTime,
+            maxOutputTokens: 120,
             ...(model === 'gemini-3.1-flash-lite'
               ? { thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL } }
               : model.startsWith('gemini-3')
