@@ -16,11 +16,11 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Prioritized list of verified Gemini 3 models.
-// gemini-3.1-flash-lite with ThinkingLevel.MINIMAL provides the fastest, lowest-latency conversational response.
+// Prioritized list of verified Gemini models.
+// gemini-3.8-flash provides high-reliability, rapid conversational intelligence.
 const MODEL_FALLBACK_ORDER = [
-  'gemini-3.1-flash-lite',
   'gemini-3.8-flash',
+  'gemini-3.1-flash-lite',
   'gemini-flash-latest',
 ] as const;
 
@@ -31,7 +31,7 @@ function getPrimaryModel(): string {
   if (envModel && (MODEL_FALLBACK_ORDER as readonly string[]).includes(envModel)) {
     return envModel;
   }
-  return 'gemini-3.1-flash-lite';
+  return 'gemini-3.8-flash';
 }
 
 function getModelFallbackChain(): string[] {
@@ -293,7 +293,7 @@ async function generateReplyWithFallback(
         contents: contentsCopy,
         config: {
           systemInstruction,
-          maxOutputTokens: 120,
+          maxOutputTokens: 240,
           ...(model === 'gemini-3.1-flash-lite'
             ? { thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL } }
             : model.startsWith('gemini-3')
@@ -302,11 +302,16 @@ async function generateReplyWithFallback(
         },
       });
 
-      const text = cleanTextForServerSpeech(response.text || '');
+      const extracted =
+        response.text ||
+        response.candidates?.[0]?.content?.parts?.find((p) => typeof p.text === 'string')?.text ||
+        '';
+      const text = cleanTextForServerSpeech(extracted);
       if (text) {
         return { replyText: text, usedModel: model };
       }
     } catch (err) {
+      console.warn(`[FIK AI] Model ${model} generation attempt failed:`, err);
       lastError = err;
       // Try next model in fallback chain
     }

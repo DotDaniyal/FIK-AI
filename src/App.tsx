@@ -108,11 +108,11 @@ export default function App() {
           {/* Optional Transcript Caption or Error Feedback */}
           <div className="mt-3 min-h-[3.5rem] flex items-center justify-center px-2">
             {errorMessage ? (
-              <p className="text-xs sm:text-sm text-amber-300/90 leading-relaxed max-w-md">
+              <p className="text-xs sm:text-sm text-amber-300/90 leading-relaxed max-w-lg text-center">
                 {errorMessage}
               </p>
             ) : caption ? (
-              <p className="text-xs sm:text-sm text-cyan-100/80 leading-relaxed line-clamp-2 max-w-md font-normal">
+              <p className="text-sm sm:text-base text-cyan-100/95 leading-relaxed max-w-lg text-center max-h-24 overflow-y-auto font-normal px-2 scrollbar-none">
                 {caption}
               </p>
             ) : (
