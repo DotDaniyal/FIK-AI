@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, Play, Square } from 'lucide-react';
+import { Mic, MicOff, Play, Square, Globe } from 'lucide-react';
 import { FIK_STATE_LABELS, JarvisState } from './types/chat';
+import { WORLD_LANGUAGES } from './types/languages';
 import { checkServerHealth } from './services/geminiClientService';
 import { VoiceSessionManager } from './services/voiceSessionManager';
 import { JarvisCore } from './components/JarvisCore';
@@ -10,6 +11,7 @@ export default function App() {
   const [audioLevel, setAudioLevel] = useState<number>(0);
   const [caption, setCaption] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('auto');
 
   const sessionManagerRef = useRef<VoiceSessionManager | null>(null);
 
@@ -44,6 +46,12 @@ export default function App() {
     };
   }, []);
 
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const lang = e.target.value;
+    setSelectedLanguage(lang);
+    sessionManagerRef.current?.setLanguage(lang);
+  };
+
   const handleStartOrInterrupt = useCallback(() => {
     sessionManagerRef.current?.startOrInterruptSession();
   }, []);
@@ -65,6 +73,32 @@ export default function App() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,rgba(2,5,11,0)_65%)]"
         aria-hidden="true"
       />
+
+      {/* Top Header with World Language Selector */}
+      <div className="absolute top-4 left-6 right-6 z-20 flex items-center justify-between pointer-events-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="font-display text-xs sm:text-sm font-bold tracking-[0.25em] text-cyan-200">
+            FIK AI <span className="text-cyan-400/70 font-normal">FAST & ALL LANGUAGES</span>
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 bg-cyan-950/40 border border-cyan-500/30 px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+          <Globe className="w-3.5 h-3.5 text-cyan-300 shrink-0" />
+          <select
+            value={selectedLanguage}
+            onChange={handleLanguageChange}
+            aria-label="Select world language"
+            className="bg-transparent text-xs font-medium text-cyan-100 focus:outline-none cursor-pointer max-w-[180px] sm:max-w-xs truncate"
+          >
+            {WORLD_LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code} className="bg-[#02050B] text-slate-100">
+                {lang.name} ({lang.nativeName})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* Central Animated FIK AI Core */}
       <div className="relative z-10 flex flex-col items-center justify-center">

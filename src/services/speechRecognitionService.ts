@@ -53,8 +53,11 @@ export class SpeechRecognitionService {
    * Automatically detects end of user utterance via final result + silence window,
    * and prevents duplicate submissions.
    */
-  public startListening(callbacks: SpeechRecognitionCallbacks): void {
+  private currentLanguage = 'auto';
+
+  public startListening(callbacks: SpeechRecognitionCallbacks, language = 'auto'): void {
     this.stopListening();
+    this.currentLanguage = language;
 
     if (!this.isSupported()) {
       callbacks.onError({
@@ -93,11 +96,12 @@ export class SpeechRecognitionService {
       return;
     }
 
-    // Use continuous=true so short pauses within a sentence don't cut the user off,
-    // paired with a 1.15s silence detector to automatically submit once the user finishes speaking.
     instance.continuous = true;
     instance.interimResults = true;
-    instance.lang = navigator.language || 'en-US';
+    instance.lang =
+      this.currentLanguage && this.currentLanguage !== 'auto'
+        ? this.currentLanguage
+        : navigator.language || 'en-US';
     this.recognition = instance;
 
     let accumulatedFinal = '';

@@ -21,7 +21,12 @@ export class VoiceSessionManager {
   private abortController: AbortController | null = null;
   private transitionTimer: number | null = null;
   private consecutiveRecoverableErrors = 0;
+  private selectedLanguage = 'auto';
   private ui: VoiceSessionUIHandlers;
+
+  public setLanguage(lang: string): void {
+    this.selectedLanguage = lang;
+  }
 
   constructor(ui: VoiceSessionUIHandlers) {
     this.ui = ui;
@@ -142,7 +147,7 @@ export class VoiceSessionManager {
         if (!this.isSessionActive) return;
         this.handleSystemError(err);
       },
-    });
+    }, this.selectedLanguage);
   }
 
   private async handleUserQuestion(questionText: string): Promise<void> {
@@ -170,6 +175,7 @@ export class VoiceSessionManager {
       const result = await sendVoiceTurnToGemini(
         requestMessages,
         controller.signal,
+        this.selectedLanguage,
         () => {
           if (this.isSessionActive) {
             this.setState('RECONNECTING');

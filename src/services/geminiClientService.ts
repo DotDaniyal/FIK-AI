@@ -15,6 +15,7 @@ export async function checkServerHealth(): Promise<{
 export async function sendVoiceTurnToGemini(
   messages: VoiceTurn[],
   signal: AbortSignal,
+  language = 'auto',
   onReconnecting?: () => void
 ): Promise<VoiceTurnResponse> {
   let lastError: unknown = null;
@@ -31,6 +32,7 @@ export async function sendVoiceTurnToGemini(
         signal,
         body: JSON.stringify({
           messages,
+          language,
           clientTimeInfo: new Date().toString(),
         }),
       });

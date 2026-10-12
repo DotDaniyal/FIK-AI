@@ -293,11 +293,9 @@ async function generateReplyWithFallback(
         contents: contentsCopy,
         config: {
           systemInstruction,
-          maxOutputTokens: 240,
-          ...(model === 'gemini-3.1-flash-lite'
+          maxOutputTokens: 160,
+          ...(model.startsWith('gemini-3') || model.includes('flash')
             ? { thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL } }
-            : model.startsWith('gemini-3')
-            ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } }
             : {}),
         },
       });
@@ -407,7 +405,15 @@ async function startServer() {
         ? req.body.clientTimeInfo.slice(0, 160)
         : new Date().toISOString();
 
-    const systemInstructionWithTime = `${FIK_AI_VOICE_SYSTEM_INSTRUCTION}\nCurrent system time: ${clientTimeInfo}.`;
+    const requestedLanguage =
+      typeof req.body?.language === 'string' ? req.body.language.trim() : 'auto';
+
+    let languageInstruction = '';
+    if (requestedLanguage && requestedLanguage !== 'auto') {
+      languageInstruction = `\nTarget Language: The user has selected language code "${requestedLanguage}". You MUST respond fluently and naturally in this exact language.`;
+    }
+
+    const systemInstructionWithTime = `${FIK_AI_VOICE_SYSTEM_INSTRUCTION}${languageInstruction}\nCurrent system time: ${clientTimeInfo}.`;
 
     try {
       const { replyText, usedModel } = await generateReplyWithFallback(
