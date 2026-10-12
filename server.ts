@@ -22,6 +22,8 @@ const MODEL_FALLBACK_ORDER = [
   'gemini-3.8-flash',
   'gemini-3.1-flash-lite',
   'gemini-flash-latest',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
 ] as const;
 
 const TTS_MODEL = 'gemini-3.8-flash-lite-tts';
@@ -313,6 +315,15 @@ async function generateReplyWithFallback(
       lastError = err;
       // Try next model in fallback chain
     }
+  }
+
+  const lastErrStr = lastError instanceof Error ? lastError.message : String(lastError);
+  if (lastErrStr.includes('429') || lastErrStr.includes('quota') || lastErrStr.includes('RESOURCE_EXHAUSTED')) {
+    return {
+      replyText:
+        'Sir, our Gemini API quota has been reached on the current free tier limit. Please check your plan details or wait for the quota window to reset.',
+      usedModel: 'fallback-quota-notice',
+    };
   }
 
   throw lastError || new Error('All configured Gemini models failed to respond.');
