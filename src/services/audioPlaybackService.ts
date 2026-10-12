@@ -33,7 +33,7 @@ export class AudioPlaybackService {
   }
 
   /**
-   * Must be called inside a direct user click handler ("Start JARVIS")
+   * Must be called inside a direct user click handler ("Start FIK AI")
    * to unlock Web Audio API and SpeechSynthesis across Chrome, Safari, Edge, and mobile browsers.
    */
   public async unlockAudioOnUserGesture(): Promise<void> {
@@ -42,7 +42,7 @@ export class AudioPlaybackService {
       if (ctx.state === 'suspended') {
         await ctx.resume().catch(() => {});
       }
-      // Play a subtle 90ms JARVIS readiness chime through Web Audio to permanently unlock speaker output
+      // Play a subtle 90ms FIK AI readiness chime through Web Audio to permanently unlock speaker output
       try {
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();

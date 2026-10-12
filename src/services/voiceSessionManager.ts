@@ -71,7 +71,7 @@ export class VoiceSessionManager {
     // Always unlock audio output on user click gesture
     await this.audioService.unlockAudioOnUserGesture();
 
-    // If JARVIS is currently speaking, clicking the core interrupts speech and listens immediately
+    // If FIK AI is currently speaking, clicking the core interrupts speech and listens immediately
     if (this.isSessionActive && this.state === 'SPEAKING') {
       this.audioService.stopPlayback();
       this.ui.onAudioLevelChange(0);
@@ -148,7 +148,7 @@ export class VoiceSessionManager {
   private async handleUserQuestion(questionText: string): Promise<void> {
     if (!this.isSessionActive) return;
 
-    // 1. Stop microphone recognition so JARVIS never hears background noise or its own upcoming voice
+    // 1. Stop microphone recognition so FIK AI never hears background noise or its own upcoming voice
     this.recognitionService.stopListening();
     this.audioService.stopPlayback();
     this.ui.onAudioLevelChange(0);

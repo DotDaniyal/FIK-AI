@@ -60,7 +60,7 @@ export class SpeechRecognitionService {
       callbacks.onError({
         code: 'UNSUPPORTED_BROWSER',
         message:
-          'Speech recognition is not supported in this browser. Please open JARVIS in Chrome, Edge, or Safari.',
+          'Speech recognition is not supported in this browser. Please open FIK AI in Chrome, Edge, or Safari.',
         recoverable: false,
       });
       return;
@@ -203,7 +203,7 @@ export class SpeechRecognitionService {
       }
 
       // If the user hasn't spoken yet and the browser timed out its recognition window (~8-10s of silence),
-      // seamlessly restart recognition as long as the user hasn't stopped JARVIS.
+      // seamlessly restart recognition as long as the user hasn't stopped FIK AI.
       if (this.isListeningDesired && document.visibilityState === 'visible') {
         this.restartTimer = window.setTimeout(() => {
           this.launchInstance(currentSessionId, callbacks);

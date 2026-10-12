@@ -6,8 +6,8 @@ export type JarvisState =
   | 'RECONNECTING'
   | 'ERROR';
 
-export const JARVIS_STATE_LABELS: Record<JarvisState, string> = {
-  IDLE: 'JARVIS ONLINE',
+export const FIK_STATE_LABELS: Record<JarvisState, string> = {
+  IDLE: 'FIK AI ONLINE',
   LISTENING: 'LISTENING TO YOU',
   THINKING: 'PROCESSING YOUR QUESTION',
   SPEAKING: 'SPEAKING RESPONSE',

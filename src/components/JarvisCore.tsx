@@ -52,10 +52,10 @@ export const JarvisCore: React.FC<JarvisCoreProps> = React.memo(
         onClick={onActivate}
         aria-label={
           state === 'IDLE' || state === 'ERROR'
-            ? 'Start JARVIS voice assistant'
+            ? 'Start FIK AI voice assistant'
             : state === 'SPEAKING'
-            ? 'Interrupt JARVIS and speak'
-            : `JARVIS state: ${state}`
+            ? 'Interrupt FIK AI and speak'
+            : `FIK AI state: ${state}`
         }
         className="group relative flex items-center justify-center w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition-transform duration-300 active:scale-95"
       >

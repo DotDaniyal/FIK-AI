@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, Play, Square } from 'lucide-react';
-import { JARVIS_STATE_LABELS, JarvisState } from './types/chat';
+import { FIK_STATE_LABELS, JarvisState } from './types/chat';
 import { checkServerHealth } from './services/geminiClientService';
 import { VoiceSessionManager } from './services/voiceSessionManager';
 import { JarvisCore } from './components/JarvisCore';
@@ -66,7 +66,7 @@ export default function App() {
         aria-hidden="true"
       />
 
-      {/* Central Animated JARVIS Core */}
+      {/* Central Animated FIK AI Core */}
       <div className="relative z-10 flex flex-col items-center justify-center">
         <JarvisCore
           state={state}
@@ -101,7 +101,7 @@ export default function App() {
               role="status"
               aria-live="polite"
             >
-              {JARVIS_STATE_LABELS[state]}
+              {FIK_STATE_LABELS[state]}
             </span>
           </div>
 
@@ -118,7 +118,7 @@ export default function App() {
             ) : (
               <p className="text-xs text-cyan-500/55 tracking-wide">
                 {state === 'IDLE'
-                  ? 'Click Start JARVIS or tap the core once to unlock audio and begin speaking'
+                  ? 'Click Start FIK AI or tap the core once to unlock audio and begin speaking'
                   : state === 'SPEAKING'
                   ? 'Tap the core at any time to interrupt and ask a new question'
                   : ''}
@@ -133,20 +133,20 @@ export default function App() {
                 type="button"
                 onClick={handleStop}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-cyan-500/35 bg-cyan-950/40 hover:bg-cyan-900/50 hover:border-cyan-400/70 text-xs font-semibold tracking-wider text-cyan-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 whitespace-nowrap"
-                aria-label="Stop JARVIS session"
+                aria-label="Stop FIK AI session"
               >
                 <Square className="w-3 h-3 fill-current" />
-                <span>STOP JARVIS</span>
+                <span>STOP FIK AI</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={handleStartOrInterrupt}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 hover:border-cyan-300 text-xs font-semibold tracking-wider text-cyan-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 whitespace-nowrap"
-                aria-label="Start JARVIS voice session"
+                aria-label="Start FIK AI voice session"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>START JARVIS</span>
+                <span>START FIK AI</span>
               </button>
             )}
           </div>

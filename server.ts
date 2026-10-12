@@ -54,7 +54,7 @@ function getGenAIClient(): GoogleGenAI | null {
   });
 }
 
-const JARVIS_VOICE_SYSTEM_INSTRUCTION = `You are JARVIS, the intelligent, calm, composed personal AI assistant inspired by Iron Man's JARVIS.
+const FIK_AI_VOICE_SYSTEM_INSTRUCTION = `You are FIK AI, the intelligent, calm, composed personal AI assistant inspired by Iron Man's JARVIS.
 
 CRITICAL SPOKEN-VOICE RULES:
 1. Every response you generate is spoken aloud directly to the user through speakers.
@@ -364,7 +364,7 @@ async function startServer() {
       configured: Boolean(ai),
       model,
       ttsModel: TTS_MODEL,
-      message: ai ? 'JARVIS ONLINE' : 'GEMINI_API_KEY missing on server',
+      message: ai ? 'FIK AI ONLINE' : 'GEMINI_API_KEY missing on server',
     });
   });
 
@@ -401,7 +401,7 @@ async function startServer() {
         ? req.body.clientTimeInfo.slice(0, 160)
         : new Date().toISOString();
 
-    const systemInstructionWithTime = `${JARVIS_VOICE_SYSTEM_INSTRUCTION}\nCurrent system time: ${clientTimeInfo}.`;
+    const systemInstructionWithTime = `${FIK_AI_VOICE_SYSTEM_INSTRUCTION}\nCurrent system time: ${clientTimeInfo}.`;
 
     try {
       const { replyText, usedModel } = await generateReplyWithFallback(
@@ -502,7 +502,7 @@ async function startServer() {
       }
     };
 
-    const systemInstructionWithTime = `${JARVIS_VOICE_SYSTEM_INSTRUCTION}\nCurrent system time: ${clientTimeInfo}.`;
+    const systemInstructionWithTime = `${FIK_AI_VOICE_SYSTEM_INSTRUCTION}\nCurrent system time: ${clientTimeInfo}.`;
 
     const modelsToTry = getModelFallbackChain();
     let succeeded = false;
@@ -567,7 +567,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`JARVIS AI Server running at http://0.0.0.0:${PORT}`);
+    console.log(`FIK AI Server running at http://0.0.0.0:${PORT}`);
   });
 }
 

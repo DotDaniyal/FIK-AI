@@ -11,7 +11,7 @@ export function classifyRecognitionError(errorCode: string): VoiceSystemError {
       return {
         code: errorCode,
         message:
-          'Microphone permission was denied. Please allow microphone access in your browser address bar and click Start JARVIS.',
+          'Microphone permission was denied. Please allow microphone access in your browser address bar and click Start FIK AI.',
         recoverable: false,
       };
     case 'audio-capture':
