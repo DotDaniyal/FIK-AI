@@ -1,0 +1,10 @@
+{
+  "name": "JARVIS AI",
+  "description": "A fast, voice-enabled personal AI assistant powered by Google Gemini with real-time streaming chat, speech recognition, spoken responses, and persistent local conversation history.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

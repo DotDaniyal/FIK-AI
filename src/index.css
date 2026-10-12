@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes jarvis-ring-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes jarvis-ring-reverse {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes jarvis-core-breathe {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes jarvis-wave-bar {
+  0%, 100% {
+    transform: scaleY(0.35);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.animate-jarvis-spin {
+  animation: jarvis-ring-spin 14s linear infinite;
+}
+
+.animate-jarvis-spin-fast {
+  animation: jarvis-ring-spin 4s linear infinite;
+}
+
+.animate-jarvis-reverse {
+  animation: jarvis-ring-reverse 9s linear infinite;
+}
+
+.animate-jarvis-breathe {
+  animation: jarvis-core-breathe 2.6s ease-in-out infinite;
+}
+
+.animate-jarvis-wave-1 {
+  animation: jarvis-wave-bar 0.75s ease-in-out infinite;
+}
+.animate-jarvis-wave-2 {
+  animation: jarvis-wave-bar 0.75s ease-in-out 0.15s infinite;
+}
+.animate-jarvis-wave-3 {
+  animation: jarvis-wave-bar 0.75s ease-in-out 0.3s infinite;
+}
+.animate-jarvis-wave-4 {
+  animation: jarvis-wave-bar 0.75s ease-in-out 0.45s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-jarvis-spin,
+  .animate-jarvis-spin-fast,
+  .animate-jarvis-reverse,
+  .animate-jarvis-breathe,
+  .animate-jarvis-wave-1,
+  .animate-jarvis-wave-2,
+  .animate-jarvis-wave-3,
+  .animate-jarvis-wave-4 {
+    animation: none !important;
+  }
+}
