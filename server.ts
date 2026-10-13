@@ -311,7 +311,15 @@ async function generateReplyWithFallback(
         return { replyText: text, usedModel: model };
       }
     } catch (err) {
-      console.warn(`[FIK AI] Model ${model} generation attempt failed:`, err);
+      const errStr = err instanceof Error ? err.message : String(err);
+      if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('RESOURCE_EXHAUSTED')) {
+        return {
+          replyText:
+            'Sir, our Gemini API quota has been reached on the current free tier limit. Please check your plan details or wait for the quota window to reset.',
+          usedModel: 'fallback-quota-notice',
+        };
+      }
+      console.warn(`[FIK AI] Model ${model} generation attempt failed:`, errStr);
       lastError = err;
       // Try next model in fallback chain
     }
