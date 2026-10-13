@@ -21,6 +21,11 @@ export class AudioPlaybackService {
   private speechPulseInterval: number | null = null;
   private playbackGeneration = 0;
   private voicesLoaded = false;
+  private speechRate = 1.0;
+
+  public setRate(rate: number): void {
+    this.speechRate = rate;
+  }
 
   private ensureAudioContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -429,7 +434,7 @@ export class AudioPlaybackService {
 
         const utterance = new SpeechSynthesisUtterance(sentence);
         utterance.lang = lang;
-        utterance.rate = 1.02;
+        utterance.rate = this.speechRate;
         utterance.pitch = 0.96;
         utterance.volume = 1.0;
         if (voice) {

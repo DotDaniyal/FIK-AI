@@ -28,6 +28,23 @@ export class VoiceSessionManager {
     this.selectedLanguage = lang;
   }
 
+  public setSpeechRate(rate: number): void {
+    this.audioService.setRate(rate);
+  }
+
+  public getConversationTurns(): any[] {
+    return this.conversationStore.getTurns();
+  }
+
+  public clearHistory(): void {
+    this.conversationStore.clear();
+  }
+
+  public async submitTextQuestion(questionText: string): void {
+    this.isSessionActive = true;
+    await this.handleUserQuestion(questionText);
+  }
+
   constructor(ui: VoiceSessionUIHandlers) {
     this.ui = ui;
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
