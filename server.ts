@@ -364,8 +364,9 @@ async function synthesizeJarvisAudio(
   }
 }
 
+const app = express();
+
 async function startServer() {
-  const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json({ limit: '1mb' }));
@@ -603,9 +604,16 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`FIK AI Server running at http://0.0.0.0:${PORT}`);
-  });
+  if (process.env.VERCEL !== '1' && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`FIK AI Server running at http://0.0.0.0:${PORT}`);
+    });
+  }
 }
 
-startServer();
+// Export app for serverless environments (e.g. Vercel)
+export default app;
+
+startServer().catch((err) => {
+  console.error('Failed to start server:', err);
+});
