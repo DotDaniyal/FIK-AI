@@ -153,6 +153,7 @@ export class AudioPlaybackService {
   public async speakResponse(options: {
     text: string;
     audioBase64?: string;
+    language?: string;
     onStart: () => void;
     onLevel: (level: number) => void;
     onSentenceCaption?: (sentence: string) => void;
@@ -185,6 +186,7 @@ export class AudioPlaybackService {
     // 2. Fallback to browser SpeechSynthesis
     await this.speakViaBrowserTTS(
       cleanText,
+      options.language || 'auto',
       currentGen,
       options.onStart,
       options.onLevel,
@@ -330,13 +332,29 @@ export class AudioPlaybackService {
 
   private selectVoiceForText(
     voices: SpeechSynthesisVoice[],
-    text: string
+    text: string,
+    requestedLanguage = 'auto'
   ): { voice: SpeechSynthesisVoice | null; lang: string } {
+    const langLower = requestedLanguage.toLowerCase();
+
+    // 1. If explicit language requested (not 'auto'), find matching voice for that accent
+    if (langLower && langLower !== 'auto') {
+      const exact = voices.find((v) => v.lang.toLowerCase() === langLower);
+      if (exact) {
+        return { voice: exact, lang: exact.lang };
+      }
+      const prefix = langLower.split('-')[0];
+      const prefixMatch = voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
+      if (prefixMatch) {
+        return { voice: prefixMatch, lang: prefixMatch.lang };
+      }
+    }
+
     const hasUrduScript = /[\u0600-\u06FF]/.test(text);
 
     if (hasUrduScript) {
       const urduVoice = voices.find(
-        (v) => v.lang.toLowerCase().startsWith('ur') || v.lang.toLowerCase().startsWith('hi')
+        (v) => v.lang.toLowerCase().startsWith('ur') || v.lang.toLowerCase().startsWith('hi') || v.lang.toLowerCase().startsWith('ar')
       );
       return {
         voice: urduVoice || null,
@@ -368,11 +386,12 @@ export class AudioPlaybackService {
     const enVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en'));
     if (enVoice) return { voice: enVoice, lang: enVoice.lang };
 
-    return { voice: voices[0] || null, lang: 'en-US' };
+    return { voice: voices[0] || null, lang: requestedLanguage !== 'auto' ? requestedLanguage : 'en-US' };
   }
 
   private async speakViaBrowserTTS(
     cleanText: string,
+    requestedLanguage: string,
     generation: number,
     onStart: () => void,
     onLevel: (level: number) => void,
@@ -398,7 +417,7 @@ export class AudioPlaybackService {
         ?.map((s) => s.trim())
         .filter(Boolean) || [cleanText];
 
-    const { voice, lang } = this.selectVoiceForText(voices, cleanText);
+    const { voice, lang } = this.selectVoiceForText(voices, cleanText, requestedLanguage);
 
     onStart();
 

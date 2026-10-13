@@ -211,6 +211,7 @@ export class VoiceSessionManager {
       await this.audioService.speakResponse({
         text: result.replyText,
         audioBase64: result.audioBase64,
+        language: this.selectedLanguage,
         onStart: () => {
           if (!this.isSessionActive) return;
           this.setState('SPEAKING');
