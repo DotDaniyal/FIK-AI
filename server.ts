@@ -326,7 +326,11 @@ async function generateReplyWithFallback(
     };
   }
 
-  throw lastError || new Error('All configured Gemini models failed to respond.');
+  return {
+    replyText:
+      'Sir, our AI connection experienced a temporary glitch. Let us re-engage our systems.',
+    usedModel: 'fallback-error-notice',
+  };
 }
 
 async function synthesizeJarvisAudio(

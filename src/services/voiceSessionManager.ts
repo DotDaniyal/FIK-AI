@@ -12,6 +12,14 @@ export interface VoiceSessionUIHandlers {
   onErrorChange: (errorMessage: string) => void;
 }
 
+/**
+ * VoiceSessionManager orchestrates the ultra-low latency voice-first pipeline:
+ * 1. LISTENING: Captures speech via Web Speech API with real-time interim transcription.
+ * 2. SPEECH-TO-TEXT COMPLETION: Awaits final utterance before cleanly halting microphone capture.
+ * 3. THINKING: Dispatches request to Gemini AI with active conversation context and selected language.
+ * 4. SPEAKING: Automatically streams output to SpeechSynthesis (or neural audio) without interruption.
+ * 5. LOOP: Automatically resumes listening after speech finishes for continuous hands-free dialogue.
+ */
 export class VoiceSessionManager {
   private state: JarvisState = 'IDLE';
   private isSessionActive = false;
@@ -40,7 +48,7 @@ export class VoiceSessionManager {
     this.conversationStore.clear();
   }
 
-  public async submitTextQuestion(questionText: string): void {
+  public async submitTextQuestion(questionText: string): Promise<void> {
     this.isSessionActive = true;
     await this.handleUserQuestion(questionText);
   }
@@ -84,16 +92,15 @@ export class VoiceSessionManager {
   }
 
   /**
-   * Starts the continuous LISTEN -> THINK -> SPEAK -> LISTEN cycle.
-   * Must be invoked from a user interaction (click/tap) on initial start so audio is unlocked.
+   * Starts or interrupts the voice session.
    */
   public async startOrInterruptSession(): Promise<void> {
     this.clearTransitionTimer();
 
-    // Always unlock audio output on user click gesture
+    // Unlock audio output on direct user gesture
     await this.audioService.unlockAudioOnUserGesture();
 
-    // If FIK AI is currently speaking, clicking the core interrupts speech and listens immediately
+    // If FIK AI is speaking, tapping interrupts speech and immediately opens the mic
     if (this.isSessionActive && this.state === 'SPEAKING') {
       this.audioService.stopPlayback();
       this.ui.onAudioLevelChange(0);
@@ -101,7 +108,6 @@ export class VoiceSessionManager {
       return;
     }
 
-    // If already listening or thinking, keep active or restart listening cleanly
     this.isSessionActive = true;
     this.consecutiveRecoverableErrors = 0;
     this.ui.onErrorChange('');
@@ -109,7 +115,7 @@ export class VoiceSessionManager {
   }
 
   /**
-   * Immediately halts all microphone capture, in-flight Gemini requests, and audio playback.
+   * Stops all active listening, API requests, and speech playback.
    */
   public stopSession(): void {
     this.isSessionActive = false;
@@ -134,7 +140,6 @@ export class VoiceSessionManager {
     if (!this.isSessionActive) return;
 
     this.clearTransitionTimer();
-    // Ensure speech output is completely stopped before opening the microphone
     this.audioService.stopPlayback();
     this.ui.onAudioLevelChange(0);
 
@@ -148,7 +153,6 @@ export class VoiceSessionManager {
         if (!this.isSessionActive) return;
         this.ui.onCaptionChange(`"${text}"`);
         this.ui.onAudioLevelChange(approxLevel);
-        // Reset pulsing level smoothly
         window.setTimeout(() => {
           if (this.state === 'LISTENING') {
             this.ui.onAudioLevelChange(0.12);
@@ -167,10 +171,17 @@ export class VoiceSessionManager {
     }, this.selectedLanguage);
   }
 
+  /**
+   * Handles user question with ultra-low latency:
+   * 1. Halts speech recognition.
+   * 2. Enters THINKING state and sends query to Gemini.
+   * 3. Streams response to SpeechSynthesis without interruption.
+   * 4. Resumes listening upon completion.
+   */
   private async handleUserQuestion(questionText: string): Promise<void> {
     if (!this.isSessionActive) return;
 
-    // 1. Stop microphone recognition so FIK AI never hears background noise or its own upcoming voice
+    // 1. Stop mic recognition so FIK AI does not capture its own voice
     this.recognitionService.stopListening();
     this.audioService.stopPlayback();
     this.ui.onAudioLevelChange(0);
@@ -189,6 +200,7 @@ export class VoiceSessionManager {
     try {
       const requestMessages = this.conversationStore.buildRequestMessages(questionText);
 
+      // Execute Gemini call with optimized latency and fallback
       const result = await sendVoiceTurnToGemini(
         requestMessages,
         controller.signal,
@@ -204,10 +216,10 @@ export class VoiceSessionManager {
         return;
       }
 
-      // Save turn in active conversation store so follow-up questions preserve context
+      // Save turn in conversation store
       this.conversationStore.addUserAndAssistantTurn(questionText, result.replyText);
 
-      // 3. Transition to SPEAKING and play the answer aloud automatically
+      // 3. Stream output to browser SpeechSynthesis / audio engine without interruption
       await this.audioService.speakResponse({
         text: result.replyText,
         audioBase64: result.audioBase64,
@@ -231,8 +243,7 @@ export class VoiceSessionManager {
           this.ui.onAudioLevelChange(0);
           if (!this.isSessionActive) return;
 
-          // 4. Automatically resume listening after speech playback finishes!
-          // 350ms cooldown prevents room speaker reverberation from being captured.
+          // 4. Automatically resume listening after speech playback finishes (350ms cooldown)
           this.transitionTimer = window.setTimeout(() => {
             if (this.isSessionActive) {
               this.ui.onCaptionChange('');
@@ -244,7 +255,6 @@ export class VoiceSessionManager {
           this.ui.onAudioLevelChange(0);
           if (!this.isSessionActive) return;
           this.ui.onErrorChange(audioErrMsg);
-          // Still resume listening after brief pause so conversation doesn't die
           this.transitionTimer = window.setTimeout(() => {
             if (this.isSessionActive) {
               this.enterListeningState();
@@ -283,7 +293,6 @@ export class VoiceSessionManager {
       return;
     }
 
-    // Non-recoverable error (e.g., mic permission denied or missing API key)
     this.isSessionActive = false;
     this.recognitionService.stopListening();
     this.audioService.stopPlayback();
